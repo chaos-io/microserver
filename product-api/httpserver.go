@@ -30,6 +30,7 @@ func main() {
 		IdleTimeout:  120 * time.Second, // max time to connections using TCP Keep-Alive
 	}
 
+	// Run server in a goroutine so that it doesn't block.
 	go func() {
 		l.Println("Starting server on port 9090")
 		if err := server.ListenAndServe(); err != nil {
