@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -17,13 +19,21 @@ func main() {
 	pl := handlers.NewProducts(l)
 
 	// create a new serve mux and register the handlers
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/", pl)
+	sm := mux.NewRouter()
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", pl.GetProducts)
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", pl.UpdateProduct)
+	putRouter.Use(pl.MiddlewareValidateProduct)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", pl.AddProduct)
+	postRouter.Use(pl.MiddlewareValidateProduct)
 
 	// create new server
 	server := &http.Server{
 		Addr:         ":9090",           // configure the bind address
-		Handler:      serveMux,          // set the default handler
+		Handler:      sm,                // set the default handler
 		ErrorLog:     l,                 // set the logger for the server
 		ReadTimeout:  1 * time.Second,   // max time to read request from the client
 		WriteTimeout: 1 * time.Second,   // max time to write response to the client
