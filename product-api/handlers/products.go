@@ -1,11 +1,13 @@
 package handlers
 
 import (
-	"chaos-io/microserver/product-api/data"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+
+	"chaos-io/microserver/product-api/data"
 
 	"github.com/gorilla/mux"
 )
@@ -67,7 +69,14 @@ func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 		prod := data.Product{}
 		err := prod.FromJSON(r.Body)
 		if err != nil {
+			p.l.Println("[ERROR] marshal product", err)
 			http.Error(w, "Unable to unmarshal json", http.StatusBadRequest)
+			return
+		}
+
+		if err := prod.Validate(); err != nil {
+			p.l.Println("[ERROR] validating product", err)
+			http.Error(w, fmt.Sprintf("Error validating product: %s", err), http.StatusBadRequest)
 			return
 		}
 

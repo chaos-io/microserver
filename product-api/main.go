@@ -1,13 +1,14 @@
 package main
 
 import (
-	"chaos-io/microserver/product-api/handlers"
 	"context"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"chaos-io/microserver/product-api/handlers"
 
 	"github.com/gorilla/mux"
 )
