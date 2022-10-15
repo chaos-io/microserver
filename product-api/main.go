@@ -8,21 +8,25 @@ import (
 	"os/signal"
 	"time"
 
+	"chaos-io/microserver/product-api/data"
 	"chaos-io/microserver/product-api/handlers"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	v := data.NewValidation()
 
 	// create the handlers
-	pl := handlers.NewProducts(l)
+	pl := handlers.NewProducts(l, v)
 
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", pl.GetProducts)
+
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/{id:[0-9]+}", pl.UpdateProduct)
 	putRouter.Use(pl.MiddlewareValidateProduct)
@@ -30,6 +34,16 @@ func main() {
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", pl.AddProduct)
 	postRouter.Use(pl.MiddlewareValidateProduct)
+
+	delRouter := sm.Methods(http.MethodDelete).Subrouter()
+	delRouter.HandleFunc("/{id:[0-9]+}", pl.DeleteProduct)
+
+	// handler for documentation
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	doc := middleware.Redoc(opts, nil)
+
+	getRouter.Handle("/docs", doc)
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	// create new server
 	server := &http.Server{

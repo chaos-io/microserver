@@ -1,8 +1,20 @@
+// Package classification of Product API
+//
+// Documentation for Product API
+//
+// Schemes: http
+// BasePath: /
+// Version: 1.0.0
+//
+// Consumes:
+// - application/json
+//
+// Produces:
+// - application/json
+// swagger:meta
 package handlers
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,15 +24,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type KeyProduct struct{}
+
 // Products is a http.Handler
 type Products struct {
 	l *log.Logger
+	v *data.Validation
 }
 
 // NewProducts creates a products handler with the given logger
-func NewProducts(l *log.Logger) *Products {
-	return &Products{l}
+func NewProducts(l *log.Logger, v *data.Validation) *Products {
+	return &Products{l, v}
 }
+
+// GenericError is a generic error message returned by a server
+type GenericError struct {
+	Message string `json:"message"`
+}
+
+// ValidationError is a collection of validation error messages
+type ValidationError struct {
+	Messages []string `json:"messages"`
+}
+
+// swagger:route GET /products products listProducts
+// Returns a list of products
+// responses:
+// 	200: productsResponse
 
 // GetProducts returns the products from the data store
 func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +60,7 @@ func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
 	pl := data.GetProducts()
 
 	// serialize the list to JSON
-	err := pl.ToJSON(w)
+	err := data.ToJSON(pl, w)
 	if err != nil {
 		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
 	}
@@ -62,27 +92,27 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type KeyProduct struct{}
+// swagger:route DELETE /products/{id} products deleteProduct
+// Update a products details
+//
+// responses:
+// 	201: notContent
+//	404: errorResponse
 
-func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		prod := data.Product{}
-		err := prod.FromJSON(r.Body)
-		if err != nil {
-			p.l.Println("[ERROR] marshal product", err)
-			http.Error(w, "Unable to unmarshal json", http.StatusBadRequest)
-			return
-		}
+// DeleteProduct deletes a product from tht database
+func (p *Products) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
 
-		if err := prod.Validate(); err != nil {
-			p.l.Println("[ERROR] validating product", err)
-			http.Error(w, fmt.Sprintf("Error validating product: %s", err), http.StatusBadRequest)
-			return
-		}
+	p.l.Println("Handle Delete Product", id)
+	err := data.DeleteProduct(id)
+	if err == data.ErrProductNotFound {
+		http.Error(w, "product not found", http.StatusNotFound)
+		return
+	}
 
-		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
+	if err != nil {
+		http.Error(w, "product not found", http.StatusInternalServerError)
+		return
+	}
 }

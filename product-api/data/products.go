@@ -1,40 +1,45 @@
 package data
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
-	"regexp"
 	"time"
-
-	"github.com/go-playground/validator/v10"
 )
 
 // Product defines the structure for an API product
+// swagger:model
 type Product struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description" validate:"required"`
-	Price       float32 `json:"price"`
-	SKU         string  `json:"sku" validate:"required,sku"`
-	CreatedOn   string  `json:"-"`
-	UpdatedOn   string  `json:"-"`
-	DeletedOn   string  `json:"-"`
-}
+	// the id for this product
+	//
+	// required :true
+	// min: 1
+	ID int `json:"id"`
 
-func (p *Product) Validate() error {
-	validate := validator.New()
-	validate.RegisterValidation("sku", ValidateSKU)
-	return validate.Struct(p)
-}
+	// the name for this poduct
+	//
+	// required: true
+	// max length: 255
+	Name string `json:"name"`
 
-func ValidateSKU(fl validator.FieldLevel) bool {
-	re := regexp.MustCompile(`[a-z]+-[a-z]+-[a-z]`)
-	matcher := re.FindAllString(fl.Field().String(), -1)
-	if len(matcher) != 1 {
-		return false
-	}
-	return true
+	// the description for this poduct
+	//
+	// required: false
+	// max length: 10000
+	Description string `json:"description" validate:"required"`
+
+	// the price for the product
+	//
+	// required: true
+	// min: 0.01
+	Price float32 `json:"price" validate:"required,gt=0"`
+
+	// the SKU for the product
+	//
+	// required: true
+	// pattern: [a-z]+-[a-z]+-[a-z]+
+	SKU       string `json:"sku" validate:"sku"`
+	CreatedOn string `json:"-"`
+	UpdatedOn string `json:"-"`
+	DeletedOn string `json:"-"`
 }
 
 func AddProduct(p *Product) {
@@ -58,6 +63,16 @@ func UpdateProduct(id int, p *Product) error {
 	return nil
 }
 
+func DeleteProduct(id int) error {
+	_, pos, err := findProduct(id)
+	if err != nil {
+		return err
+	}
+
+	productList = append(productList[:pos], productList[pos+1:]...)
+	return nil
+}
+
 var ErrProductNotFound = errors.New("product not found")
 
 func findProduct(id int) (*Product, int, error) {
@@ -69,24 +84,8 @@ func findProduct(id int) (*Product, int, error) {
 	return nil, -1, ErrProductNotFound
 }
 
-func (p *Product) FromJSON(r io.Reader) error {
-	e := json.NewDecoder(r)
-	return e.Decode(p)
-}
-
 // Products is a collection of Product
 type Products []*Product
-
-// ToJSON serializes the contents of the collection to JSON
-// NewEncoder provides better performance than json.Unmarshal as it does not
-// have to buffer the output into an in memory slice of bytes
-// this reduces allocations and the overheads of the service
-//
-// https://golang.org/pkg/encoding/json/#NewEncoder
-func (p *Products) ToJSON(w io.Writer) error {
-	e := json.NewEncoder(w)
-	return e.Encode(p)
-}
 
 // GetProducts returns a list of Products
 func GetProducts() Products {
