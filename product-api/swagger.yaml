@@ -56,6 +56,25 @@ paths:
     get:
       description: Returns a list of products
       operationId: listProducts
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/productsResponse'
+      tags:
+      - products
+    post:
+      description: add a product
+      operationId: addProduct
+      responses:
+        "200":
+          $ref: '#/responses/productsResponse'
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      operationId: updateProduct
       responses:
         "200":
           $ref: '#/responses/productsResponse'
@@ -73,6 +92,16 @@ paths:
         required: true
         type: integer
         x-go-name: ID
+      responses:
+        "201":
+          $ref: '#/responses/notContent'
+        "404":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - products
+    get:
+      description: get a product details
+      operationId: getProduct
       responses:
         "201":
           $ref: '#/responses/notContent'

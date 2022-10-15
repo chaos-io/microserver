@@ -49,6 +49,8 @@ type ValidationError struct {
 
 // swagger:route GET /products products listProducts
 // Returns a list of products
+// Produces:
+// - application/json
 // responses:
 // 	200: productsResponse
 
@@ -66,6 +68,41 @@ func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// swagger:route GET /products/{id} products getProduct
+// get a product details
+//
+// responses:
+// 	201: notContent
+//	404: errorResponse
+func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	p.l.Println("Handle GET Product")
+
+	// fetch the product from the datastore
+	pl, err := data.GetProduct(id)
+	if err == data.ErrProductNotFound {
+		http.Error(w, "product not found", http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, "product not found", http.StatusInternalServerError)
+		return
+	}
+
+	// serialize the list to JSON
+	err = data.ToJSON(pl, w)
+	if err != nil {
+		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+	}
+}
+
+// swagger:route POST /products products addProduct
+// add a product
+//
+// responses:
+// 	200: productsResponse
 func (p *Products) AddProduct(w http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST Product")
 
@@ -73,6 +110,12 @@ func (p *Products) AddProduct(w http.ResponseWriter, r *http.Request) {
 	data.AddProduct(&prod)
 }
 
+// swagger:route PUT /products products updateProduct
+//
+// Consumes:
+// 	- application/json
+// responses:
+// 	200: productsResponse
 func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
@@ -98,7 +141,6 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 // responses:
 // 	201: notContent
 //	404: errorResponse
-
 // DeleteProduct deletes a product from tht database
 func (p *Products) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

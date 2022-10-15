@@ -25,6 +25,7 @@ func main() {
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/{id:[0-9]+}", pl.GetProduct)
 	getRouter.HandleFunc("/", pl.GetProducts)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
@@ -65,8 +66,7 @@ func main() {
 
 	// trap sigterm or interrupt and gracefully shutdown the server
 	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, os.Interrupt)
-	signal.Notify(sigChan, os.Kill)
+	signal.Notify(sigChan, os.Interrupt, os.Kill)
 
 	// block until a signal is received
 	sig := <-sigChan

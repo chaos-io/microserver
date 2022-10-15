@@ -87,6 +87,13 @@ func findProduct(id int) (*Product, int, error) {
 // Products is a collection of Product
 type Products []*Product
 
+func GetProduct(i int) (*Product, error) {
+	if i < 1 || i > len(productList) {
+		return nil, ErrProductNotFound
+	}
+	return productList[i-1], nil
+}
+
 // GetProducts returns a list of Products
 func GetProducts() Products {
 	return productList
