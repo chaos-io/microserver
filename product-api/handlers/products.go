@@ -58,6 +58,7 @@ type ValidationError struct {
 func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle GET Products")
 
+	w.Header().Add("Content-Type", "application/json")
 	// fetch the products from the datastore
 	pl := data.GetProducts()
 
@@ -72,7 +73,7 @@ func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
 // get a product details
 //
 // responses:
-// 	201: notContent
+// 	201: noContentResponse
 //	404: errorResponse
 func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -139,7 +140,7 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 // Update a products details
 //
 // responses:
-// 	201: notContent
+// 	201: noContentResponse
 //	404: errorResponse
 // DeleteProduct deletes a product from tht database
 func (p *Products) DeleteProduct(w http.ResponseWriter, r *http.Request) {

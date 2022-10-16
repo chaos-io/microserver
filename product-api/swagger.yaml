@@ -3,15 +3,17 @@ consumes:
 - application/json
 definitions:
   GenericError:
-    description: GenericError is a generic error message returned by a server
+    description: GenericError GenericError is a generic error message returned by
+      a server
     properties:
       message:
+        description: message
         type: string
         x-go-name: Message
     type: object
-    x-go-package: chaos-io/microserver/product-api/handlers
+    x-go-package: github.com/go-openapi/strfmt
   Product:
-    description: Product defines the structure for an API product
+    description: Product Product defines the structure for an API product
     properties:
       description:
         description: the description for this poduct
@@ -46,7 +48,7 @@ definitions:
     - price
     - sku
     type: object
-    x-go-package: chaos-io/microserver/product-api/data
+    x-go-package: chaos-io/microserver/product-api/sdk/models
 info:
   description: Documentation for Product API
   title: of Product API
@@ -94,7 +96,7 @@ paths:
         x-go-name: ID
       responses:
         "201":
-          $ref: '#/responses/notContent'
+          $ref: '#/responses/noContentResponse'
         "404":
           $ref: '#/responses/errorResponse'
       tags:
@@ -102,9 +104,17 @@ paths:
     get:
       description: get a product details
       operationId: getProduct
+      parameters:
+      - description: The id of the product ot delete from the database
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
       responses:
         "201":
-          $ref: '#/responses/notContent'
+          $ref: '#/responses/noContentResponse'
         "404":
           $ref: '#/responses/errorResponse'
       tags:

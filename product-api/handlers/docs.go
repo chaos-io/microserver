@@ -37,7 +37,7 @@ type errorResponseWrapper struct {
 	Body GenericError
 }
 
-// swagger:parameters deleteProduct
+// swagger:parameters deleteProduct getProduct
 type productIDParametersWrapper struct {
 	// The id of the product ot delete from the database
 	// in:path
