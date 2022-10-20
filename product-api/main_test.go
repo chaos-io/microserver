@@ -17,5 +17,7 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	fmt.Printf("%#v\n", prods.GetPayload()[0])
 	fmt.Println(prods)
 }

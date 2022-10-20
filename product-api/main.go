@@ -11,6 +11,8 @@ import (
 	"chaos-io/microserver/product-api/data"
 	"chaos-io/microserver/product-api/handlers"
 
+	gohandlers "github.com/gorilla/handlers"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
@@ -25,19 +27,19 @@ func main() {
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/{id:[0-9]+}", pl.GetProduct)
-	getRouter.HandleFunc("/", pl.GetProducts)
+	getRouter.HandleFunc("/products", pl.GetProducts)
+	getRouter.HandleFunc("/products/{id:[0-9]+}", pl.GetProduct)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", pl.UpdateProduct)
+	putRouter.HandleFunc("/products", pl.UpdateProduct)
 	putRouter.Use(pl.MiddlewareValidateProduct)
 
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", pl.AddProduct)
+	postRouter.HandleFunc("/products", pl.AddProduct)
 	postRouter.Use(pl.MiddlewareValidateProduct)
 
 	delRouter := sm.Methods(http.MethodDelete).Subrouter()
-	delRouter.HandleFunc("/{id:[0-9]+}", pl.DeleteProduct)
+	delRouter.HandleFunc("/products/{id:[0-9]+}", pl.DeleteProduct)
 
 	// handler for documentation
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
@@ -45,6 +47,9 @@ func main() {
 
 	getRouter.Handle("/docs", doc)
 	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+
+	// CORS
+	gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
 	// create new server
 	server := &http.Server{
