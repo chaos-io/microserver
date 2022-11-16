@@ -49,12 +49,12 @@ func main() {
 	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	// CORS
-	gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
+	cors := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
 	// create new server
 	server := &http.Server{
 		Addr:         ":9090",           // configure the bind address
-		Handler:      sm,                // set the default handler
+		Handler:      cors(sm),          // set the default handler
 		ErrorLog:     l,                 // set the logger for the server
 		ReadTimeout:  1 * time.Second,   // max time to read request from the client
 		WriteTimeout: 1 * time.Second,   // max time to write response to the client
