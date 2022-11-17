@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	hclog "github.com/hashicorp/go-hclog"
 
@@ -43,8 +44,13 @@ func main() {
 	fh := handlers.NewFiles(stor, l)
 
 	sm := mux.NewRouter()
+
+	// CORS
+	cors := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
+
 	ph := sm.Methods(http.MethodPost).Subrouter()
-	ph.HandleFunc("/images/{id:[0-9]+}/{filename:[a-zA-Z0-9]+\\.[a-z]{3}}", fh.ServeHTTP)
+	ph.HandleFunc("/images/{id:[0-9]+}/{filename:[a-zA-Z0-9]+\\.[a-z]{3}}", fh.UploadREST)
+	ph.HandleFunc("/", fh.UploadMultipart)
 
 	gh := sm.Methods(http.MethodGet).Subrouter()
 	gh.Handle(
@@ -55,7 +61,7 @@ func main() {
 	// create a new server
 	s := http.Server{
 		Addr:         *bindAddress,      // configure the bind address
-		Handler:      sm,                // set the default handler
+		Handler:      cors(sm),          // set the default handler
 		ErrorLog:     sl,                // the logger for the server
 		ReadTimeout:  5 * time.Second,   // max time to read request from the client
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
