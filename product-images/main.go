@@ -42,6 +42,7 @@ func main() {
 	}
 
 	fh := handlers.NewFiles(stor, l)
+	gz := handlers.GzipHandler{}
 
 	sm := mux.NewRouter()
 
@@ -57,6 +58,8 @@ func main() {
 		"/images/{id:[0-9]+}/{filename:[a-zA-Z0-9]+\\.[a-z]{3}}",
 		http.StripPrefix("/images/", http.FileServer(http.Dir(*basePath))),
 	)
+	gh.Use(gz.GzipMiddleware)
+	// curl -v localhost:9090/images/1/1.txt --compressed -o test2.txt
 
 	// create a new server
 	s := http.Server{
