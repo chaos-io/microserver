@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"time"
 
+	"google.golang.org/grpc"
+
 	"chaos-io/microserver/product-api/data"
 	"chaos-io/microserver/product-api/handlers"
 
@@ -20,6 +22,13 @@ import (
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	v := data.NewValidation()
+
+	conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
 
 	// create the handlers
 	pl := handlers.NewProducts(l, v)

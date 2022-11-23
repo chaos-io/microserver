@@ -10,10 +10,11 @@ import (
 
 type Currency struct {
 	log hclog.Logger
+	protos.UnimplementedCurrencyServer
 }
 
 func NewCurrency(l hclog.Logger) *Currency {
-	return &Currency{l}
+	return &Currency{l, struct{}{}}
 }
 
 func (c *Currency) GetRate(ctx context.Context, rr *protos.RateRequest) (*protos.RateResponse, error) {
