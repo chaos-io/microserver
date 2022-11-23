@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	bindAddress = flag.String("BIND_ADDRESS", ":9090", "Bind address for the server")
+	bindAddress = flag.String("BIND_ADDRESS", ":9091", "Bind address for the server")
 	logLevel    = flag.String("LOG_LEVEL", "debug", "Log output level for the server [debug, info, trace]")
 	basePath    = flag.String("BASE_PATH", "./imagestore", "Base path to save images")
 )

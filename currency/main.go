@@ -22,7 +22,8 @@ func main() {
 	protos.RegisterCurrencyServer(gs, c)
 	reflection.Register(gs)
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", 9092))
+	log.Info("Starting server on port 9093")
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", 9093))
 	if err != nil {
 		log.Error("Unable to create listener", "error", err)
 		os.Exit(1)

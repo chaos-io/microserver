@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+
 
 	"chaos-io/microserver/product-api/data"
 	"chaos-io/microserver/product-api/handlers"
@@ -19,19 +21,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var bindAddress = flag.String("BIND_ADDRESS", ":9090", "Bind address for the server")
+
 func main() {
+	flag.Parse()
+
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	v := data.NewValidation()
 
-	conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:9093", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
+	// create client
+	cc := protos.NewCurrencyClient(conn)
+	//cc := protos.NewCurrencyClient(conn)
 
 	// create the handlers
-	pl := handlers.NewProducts(l, v)
+	pl := handlers.NewProducts(l, v, cc)
 
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
@@ -62,11 +71,11 @@ func main() {
 
 	// create new server
 	server := &http.Server{
-		Addr:         ":9090",           // configure the bind address
+		Addr:         *bindAddress,      // configure the bind address
 		Handler:      cors(sm),          // set the default handler
 		ErrorLog:     l,                 // set the logger for the server
-		ReadTimeout:  1 * time.Second,   // max time to read request from the client
-		WriteTimeout: 1 * time.Second,   // max time to write response to the client
+		ReadTimeout:  5 * time.Second,   // max time to read request from the client
+		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time to connections using TCP Keep-Alive
 	}
 

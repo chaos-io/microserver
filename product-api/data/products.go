@@ -30,7 +30,7 @@ type Product struct {
 	//
 	// required: true
 	// min: 0.01
-	Price float32 `json:"price" validate:"required,gt=0"`
+	Price float64 `json:"price" validate:"required,gt=0"`
 
 	// the SKU for the product
 	//
@@ -87,7 +87,7 @@ func findProduct(id int) (*Product, int, error) {
 // Products is a collection of Product
 type Products []*Product
 
-func GetProduct(i int) (*Product, error) {
+func GetProductById(i int) (*Product, error) {
 	if i < 1 || i > len(productList) {
 		return nil, ErrProductNotFound
 	}

@@ -15,9 +15,12 @@
 package handlers
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strconv"
+
+	protos "github.com/nicholasjackson/building-microservices-youtube/currency/protos/currency"
 
 	"chaos-io/microserver/product-api/data"
 
@@ -28,13 +31,13 @@ type KeyProduct struct{}
 
 // Products is a http.Handler
 type Products struct {
-	l *log.Logger
-	v *data.Validation
+	l  *log.Logger
+	v  *data.Validation
 }
 
 // NewProducts creates a products handler with the given logger
-func NewProducts(l *log.Logger, v *data.Validation) *Products {
-	return &Products{l, v}
+func NewProducts(l *log.Logger, v *data.Validation, ) *Products {
+	return &Products{l, v, cc}
 }
 
 // GenericError is a generic error message returned by a server
@@ -81,7 +84,7 @@ func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle GET Product")
 
 	// fetch the product from the datastore
-	pl, err := data.GetProduct(id)
+	prod, err := data.GetProductById(id)
 	if err == data.ErrProductNotFound {
 		http.Error(w, "product not found", http.StatusNotFound)
 		return
@@ -92,8 +95,25 @@ func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get exchange rate
+	rr := &protos.RateRequest{
+		Base: protos.Currencies(protos.Currencies_value["USD"]),
+		Destination: protos.Currencies(protos.Currencies_value["GBP"]),
+	}
+
+	resp, err := p.cc.GetRate(context.Background(), rr)
+	if err != nil {
+		p.l.Println("[Error] error getting new rate", err)
+		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		return
+	}
+
+	p.l.Printf("resp=%#v\n", resp)
+
+	prod.Price = prod.Price * resp.Rate
+
 	// serialize the list to JSON
-	err = data.ToJSON(pl, w)
+	err = data.ToJSON(prod, w)
 	if err != nil {
 		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
 	}

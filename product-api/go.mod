@@ -2,6 +2,10 @@ module chaos-io/microserver/product-api
 
 go 1.18
 
+replace (
+	github.com/chaos-io/microserver/currency/protos/currency  => ../currency
+)
+
 require (
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.2
