@@ -20,23 +20,23 @@ import (
 	"net/http"
 	"strconv"
 
-	protos "github.com/nicholasjackson/building-microservices-youtube/currency/protos/currency"
-
-	"chaos-io/microserver/product-api/data"
-
+	"github.com/chaos-io/microserver/currency/protos/currency"
 	"github.com/gorilla/mux"
+
+	"github.com/chaos-io/microserver/product-api/data"
 )
 
 type KeyProduct struct{}
 
 // Products is a http.Handler
 type Products struct {
-	l  *log.Logger
-	v  *data.Validation
+	l *log.Logger
+	v *data.Validation
+	cc currency.CurrencyClient
 }
 
 // NewProducts creates a products handler with the given logger
-func NewProducts(l *log.Logger, v *data.Validation, ) *Products {
+func NewProducts(l *log.Logger, v *data.Validation, cc currency.CurrencyClient) *Products {
 	return &Products{l, v, cc}
 }
 
@@ -96,9 +96,9 @@ func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get exchange rate
-	rr := &protos.RateRequest{
-		Base: protos.Currencies(protos.Currencies_value["USD"]),
-		Destination: protos.Currencies(protos.Currencies_value["GBP"]),
+	rr := &currency.RateRequest{
+		Base: currency.Currencies(currency.Currencies_value["USD"]),
+		Destination: currency.Currencies(currency.Currencies_value["GBP"]),
 	}
 
 	resp, err := p.cc.GetRate(context.Background(), rr)

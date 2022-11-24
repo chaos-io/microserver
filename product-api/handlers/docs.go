@@ -15,7 +15,7 @@
 // swagger:meta
 package handlers
 
-import "chaos-io/microserver/product-api/data"
+import "github.com/chaos-io/microserver/product-api/data"
 
 // A list of products return in the response
 // swagger:response productsResponse

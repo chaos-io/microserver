@@ -1,6 +1,10 @@
-module chaos-io/microserver/currency
+module github.com/chaos-io/microserver/currency
 
 go 1.18
+
+//replace (
+//	github.com/chaos-io/microserver/currency  => ../chaos-io/microserver/currency
+//)
 
 require (
 	github.com/hashicorp/go-hclog v1.3.1

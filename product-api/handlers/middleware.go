@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"chaos-io/microserver/product-api/data"
+	"github.com/chaos-io/microserver/product-api/data"
 )
 
 func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {

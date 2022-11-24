@@ -11,9 +11,9 @@ import (
 
 	"google.golang.org/grpc"
 
-
-	"chaos-io/microserver/product-api/data"
-	"chaos-io/microserver/product-api/handlers"
+	"github.com/chaos-io/microserver/currency/protos/currency"
+	"github.com/chaos-io/microserver/product-api/data"
+	"github.com/chaos-io/microserver/product-api/handlers"
 
 	gohandlers "github.com/gorilla/handlers"
 
@@ -36,8 +36,7 @@ func main() {
 	defer conn.Close()
 
 	// create client
-	cc := protos.NewCurrencyClient(conn)
-	//cc := protos.NewCurrencyClient(conn)
+	cc := currency.NewCurrencyClient(conn)
 
 	// create the handlers
 	pl := handlers.NewProducts(l, v, cc)

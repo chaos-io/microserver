@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"chaos-io/microserver/product-api/sdk/client"
-	"chaos-io/microserver/product-api/sdk/client/products"
+	"github.com/chaos-io/microserver/product-api/sdk/client"
+	"github.com/chaos-io/microserver/product-api/sdk/client/products"
 )
 
 func TestClient(t *testing.T) {

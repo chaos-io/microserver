@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	protos "chaos-io/microserver/currency/protos/currency"
+	protos "github.com/chaos-io/microserver/currency/protos/currency"
 )
 
 type Currency struct {

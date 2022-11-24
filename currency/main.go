@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	protos "chaos-io/microserver/currency/protos/currency"
-	"chaos-io/microserver/currency/server"
+	protos "github.com/chaos-io/microserver/currency/protos/currency"
+	"github.com/chaos-io/microserver/currency/server"
 )
 
 func main() {
