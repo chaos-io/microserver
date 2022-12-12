@@ -2,10 +2,6 @@ module github.com/chaos-io/microserver/currency
 
 go 1.18
 
-//replace (
-//	github.com/chaos-io/microserver/currency  => ../chaos-io/microserver/currency
-//)
-
 require (
 	github.com/hashicorp/go-hclog v1.3.1
 	google.golang.org/grpc v1.51.0
